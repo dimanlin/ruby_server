@@ -19,18 +19,19 @@ module RubyServer
   def self.connection(s)
     request = s.gets
     if TCPServerRequest.check_method_and_url(request, :get, :time)
-      if TCPServerRequest.request_have_params?(request)
-        paramstring = TCPServerRequest.params(request)
-        paramstring.each do |city|
-          begin
-            City.new(city, s).say_time
-          rescue Exception => e
-            puts e.message
-            puts e.backtrace.inspect
-          end
-        end
-      else
-        City.new('current_location', s).say_time
+      begin
+        body = Proc.new do
+                if TCPServerRequest.request_have_params?(request)
+                  paramstring = TCPServerRequest.params(request)
+                  paramstring.each do |city|
+                    City.new(city, s).say_time
+                  end
+                end
+              end
+        RenderContent.wrap_content(s, body)
+      rescue Exception => e
+        puts e.message
+        puts e.backtrace.inspect
       end
     end
     s.close

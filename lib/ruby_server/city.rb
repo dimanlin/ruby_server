@@ -21,28 +21,18 @@ module RubyServer
 
     private
 
-    def wrap_content(&block)
-      @s.write('<html>')
-      yield
-      @s.write('</html>')
-    end
-
     def say_time_for_real_city
-      wrap_content do
-        timezone = RubyServer::Timezones.timezone_by_city_name(@city_name)
-        if timezone.nil?
-          Response.city_not_exist(@city_human_name, @s)
-        else
-          Response.city(@city_human_name, @s, timezone)
-        end
-        @s.write('<br/>')
+      timezone = RubyServer::Timezones.timezone_by_city_name(@city_name)
+      if timezone.nil?
+        Response.city_not_exist(@city_human_name, @s)
+      else
+        Response.city(@city_human_name, @s, timezone)
       end
+      @s.write('<br/>')
     end
 
     def say_time_for_current_location
-      wrap_content do
-        Response.current_location(@s)
-      end
+      Response.current_location(@s)
     end
   end
 end
